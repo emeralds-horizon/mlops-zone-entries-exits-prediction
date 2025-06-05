@@ -15,8 +15,12 @@ MINIO_ACCESS_KEY = os.environ['MINIO_ACCESS_KEY']
 MINIO_SECRET_ACCESS_KEY = os.environ['MINIO_SECRET_ACCESS_KEY']
 MINIO_API_URL = os.environ['MINIO_API_URL']
 MINIO_BUCKET = os.environ['MINIO_BUCKET']
-MODEL_PATH = os.environ['MODEL_PATH']
 
+FOLDER_PREFIX = 'uc3/'
+MODEL_VERSION = '2025_v1'
+
+# model
+MODEL_PATH = FOLDER_PREFIX + 'NN_En_Ex_{}.h5'.format(MODEL_VERSION)
 
 class CrowdPred(Model):
  """
