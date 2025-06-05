@@ -61,7 +61,7 @@ class CrowdPred(Model):
 
         ########### Extra constants for min–max scaling
         self._DAY_MIN, self._DAY_MAX = 1, 7
-        self._TW_MIN,  self._TW_MAX  = 0, 95
+        self._TW_MIN,  self._TW_MAX  = 1, 95
         ###########
 
     def load(self):
