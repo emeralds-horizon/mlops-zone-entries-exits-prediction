@@ -18,21 +18,22 @@ MINIO_BUCKET = os.environ['MINIO_BUCKET']
 MODEL_PATH = os.environ['MODEL_PATH']
 
 
-class ModelExample(Model):
-    """
-    A custom KFServing model for iris classification using sklearn.
+class CrowdPred(Model):
+ """
+    Crowd prediction model predicts the number of entries & exits per zone, day of the week and timewindow for Riga.
 
     Args:
         name (str): The name of the inference service.
 
     Attributes:
-        model: Sklearn model.
+        model: Zone-Embedding Keras MLP regression model.
 
     Methods:
         load(): Loads the model from the object storage.
         predict(request: Dict) -> Dict: Makes predictions based on the input request.
 
     """
+
 
     def __init__(self, name: str):
         super().__init__(name)
