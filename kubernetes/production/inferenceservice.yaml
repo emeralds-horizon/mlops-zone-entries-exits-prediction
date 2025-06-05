@@ -1,0 +1,51 @@
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  annotations:
+    sidecar.istio.io/inject: "true"
+  name: model-example
+  namespace: models
+  labels:
+    app: model-example-production
+spec:
+  predictor:
+    maxReplicas: 1
+    containers:
+      - name: kserve-container
+        image: ghcr.io/emeralds-horizon/model-example:latest
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 250m
+            memory: 250Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        env:
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: model-secrets
+                key: MINIO_ACCESS_KEY
+          - name: MINIO_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: model-secrets
+                key: MINIO_SECRET_ACCESS_KEY
+          - name: MINIO_API_URL
+            valueFrom:
+              secretKeyRef:
+                name: model-secrets
+                key: MINIO_API_URL
+          - name: MINIO_BUCKET
+            valueFrom:
+              secretKeyRef:
+                name: model-secrets
+                key: MINIO_BUCKET
+          - name: MODEL_PATH
+            valueFrom:
+              secretKeyRef:
+                name: model-secrets
+                key: MODEL_PATH
+    imagePullSecrets:
+        - name: github-container-registry

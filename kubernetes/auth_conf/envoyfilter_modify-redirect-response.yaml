@@ -1,0 +1,42 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: modify-redirect-response
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+  - applyTo: HTTP_FILTER
+    match:
+      context: GATEWAY
+      listener:
+        filterChain:
+          filter:
+            name: envoy.http_connection_manager
+            # Match the ext_authz filter to ensure the Lua script runs after it
+            subFilter:
+              name: envoy.filters.http.ext_authz
+    patch:
+      operation: INSERT_AFTER
+      value:
+        name: envoy.filters.http.lua
+        typed_config:
+          '@type': type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua
+          inlineCode: |
+            function envoy_on_response(response_handle)
+              local status = response_handle:headers():get(":status")
+              local inference_header = response_handle:headers():get("request-type")
+              response_handle:logInfo("Status header: " .. (status or "nil"))
+              response_handle:logInfo("Request-Type header: " .. (inference_header or "nil"))
+               -- Check if status is '302' and 'request-type' is 'model-inference'
+              if status == "302" and inference_header == "model-inference" then
+                -- Replace status code with 401 Unauthorized
+                response_handle:headers():replace(":status", "401")
+                -- Remove the Location header to prevent redirection
+                response_handle:headers():remove("Location")
+                -- Optionally, set a response body
+                response_handle:body():set_bytes("Unauthorized")
+              end
+            end

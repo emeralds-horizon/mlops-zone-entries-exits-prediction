@@ -1,0 +1,17 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-kubeflow-access
+  namespace: istio-system
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      when:
+        - key: request.auth.claims[aud]
+          values: ["kubeflow", "account"]
+  selector:
+    matchLabels:
+      app: istio-ingressgateway
