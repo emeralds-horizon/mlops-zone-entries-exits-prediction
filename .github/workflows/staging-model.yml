@@ -1,0 +1,208 @@
+name: Build/publish a Docker image and deploy model in Kubernetes cluster by using Kserve
+on:
+  push:
+    branches: ["staging"]
+    paths:
+      - "kubernetes/**"
+      - "model.py"
+      - "test_request/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: emeralds-horizon/model-example ############### emeralds-horizon/emeralds-token
+  NAMESPACE: stagingv2 ################ emeralds-token
+  MODEL_NAME: model-example
+  INGRESS_ROUTE_NAME: model-example-staging-ingressroute
+
+jobs:
+  build-and-push-image:
+    name: Build & push docker image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+  deploy-model-in-kubernetes-cluster:
+    name: Deploy Model in Kubernetes cluster
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Kubectl
+        uses: azure/k8s-set-context@v1
+        with:
+            ############################### Set this secret in GitHub
+            kubeconfig: ${{ secrets.KUBECONFIG }}
+
+      - name: Remove existing secrets if it exists
+        run: |
+            echo "Checking for secrets resource ${{ env.NAMESPACE }}"
+            EXISTS=$(kubectl get secrets -n ${{ env.NAMESPACE }} --no-headers=true --ignore-not-found | grep "^model-secrets" || true)
+            if [ -n "$EXISTS" ]; then
+              echo "secrets resource matching 'model-secrets*' found."
+              echo "Deleting existing secrets model-secrets resource"
+              kubectl delete secrets model-secrets -n ${{ env.NAMESPACE }} || true
+            else
+              echo "secrets model-secrets resource does not exist, proceeding with deployment."
+            fi
+
+      - name: Deploy model secrets
+        uses: azure/k8s-create-secret@v1
+        with:
+          namespace: ${{ env.NAMESPACE }}
+          secret-type: 'generic'
+          secret-name: model-secrets
+          ############################################# Define Secrets here and set them in GitHub
+          arguments: |
+            --from-literal=MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}
+            --from-literal=MINIO_SECRET_ACCESS_KEY=${{ secrets.MINIO_SECRET_ACCESS_KEY }}
+            --from-literal=MINIO_API_URL=${{ secrets.MINIO_API_URL }}
+            --from-literal=MINIO_BUCKET=${{ secrets.MINIO_BUCKET }}
+            --from-literal=MODEL_PATH=${{ secrets.MODEL_PATH }}
+            --from-literal=MLOPS_PLATFORM_USERNAME_STAGING=${{ secrets.MLOPS_PLATFORM_USERNAME_STAGING }}
+            --from-literal=MLOPS_PLATFORM_PASSWORD_STAGING=${{ secrets.MLOPS_PLATFORM_PASSWORD_STAGING }}
+
+      - name: Remove existing InferenceService if it exists
+        run: |
+          echo "Checking for InferenceService resource"
+          EXISTS=$(kubectl get inferenceservice -n ${{ env.NAMESPACE }} --no-headers=true --ignore-not-found | grep "^${{ env.MODEL_NAME }}" || true)
+          if [ -n "$EXISTS" ]; then
+            echo "inferenceservice Resource matching '${{ env.MODEL_NAME }}*' found."
+            echo "Deleting existing inferenceservice ${{ env.MODEL_NAME }} resource"
+            kubectl delete inferenceservice ${{ env.MODEL_NAME }} -n ${{ env.NAMESPACE }} || true
+          else
+            echo "inferenceservice ${{ env.MODEL_NAME }} resource does not exist, proceeding with deployment."
+          fi
+
+      - name: Deploy model to the Kubernetes cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          namespace: ${{ env.NAMESPACE }}
+          ######################################### Define manifests to deploy except ingressroute
+          manifests: |
+            kubernetes/staging/inferenceservice.yaml
+
+      # Wait for InferenceService to be ready
+      - name: Wait for InferenceService to be ready
+        run: |
+          echo "Waiting for InferenceService ${{ env.MODEL_NAME }} to be ready..."
+          kubectl wait --for=condition=Ready inferenceservice/${{ env.MODEL_NAME }} -n ${{ env.NAMESPACE }} --timeout=300s
+
+      # Delete KServe-managed VirtualService
+      - name: Delete KServe-managed VirtualService
+        run: |
+          echo "Deleting KServe-managed VirtualService..."
+          kubectl delete virtualservice ${{ env.MODEL_NAME }} -n ${{ env.NAMESPACE }} || true
+
+      # Deploy custom VirtualService
+      - name: Deploy custom VirtualService to the Kubernetes cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          namespace: ${{ env.NAMESPACE }}
+          manifests: |
+            kubernetes/staging/virtualservice.yaml
+
+      - name: Deploy Ingressroute to the Kubernetes cluster
+        uses: azure/k8s-deploy@v1
+        with:
+          namespace: istio-system
+          manifests: |
+            kubernetes/staging/ingressroute.yaml
+
+  check-deployment-python308:
+    name: Check if the endpoint is up for python 3.8
+    runs-on: ubuntu-latest
+    needs: deploy-model-in-kubernetes-cluster
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - name: Install dependencies
+      run: |
+        pip install BeautifulSoup4
+        pip install kserve
+        pip install requests pytest pytest-mock
+
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+
+    - name: Sleep for 30 seconds # Wait for the model to be deployed
+      run: sleep 30
+
+    - name: Check URL
+      run: |
+        pytest --log-cli-level=INFO test_request/unit_testing_pytest/test_script_staging.py
+      env:
+        MLOPS_PLATFORM_USERNAME_STAGING: ${{ secrets.MLOPS_PLATFORM_USERNAME_STAGING }}
+        MLOPS_PLATFORM_PASSWORD_STAGING: ${{ secrets.MLOPS_PLATFORM_PASSWORD_STAGING }}
+
+  check-deployment-python310:
+    name: Check if the endpoint is up for python 3.10
+    runs-on: ubuntu-latest
+    needs: deploy-model-in-kubernetes-cluster
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install BeautifulSoup4
+        pip install kserve
+        pip install requests pytest pytest-mock
+        
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+
+    - name: Sleep for 30 seconds # Wait for the model to be deployed
+      run: sleep 30
+
+    - name: Check URL
+      run: |
+        pytest --log-cli-level=INFO test_request/unit_testing_pytest/test_script_staging.py
+      env:
+        MLOPS_PLATFORM_USERNAME_STAGING: ${{ secrets.MLOPS_PLATFORM_USERNAME_STAGING }}
+        MLOPS_PLATFORM_PASSWORD_STAGING: ${{ secrets.MLOPS_PLATFORM_PASSWORD_STAGING }}

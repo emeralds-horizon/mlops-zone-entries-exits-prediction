@@ -1,0 +1,16 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: model-example-staging-ingressroute
+  namespace: istio-system
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - kind: Rule
+    match: Host(`model-example.stagingv2.kubeflow.emeralds.ari-aidata.eu`)
+    services:
+    - name: istio-ingressgateway
+      port: 80
+  tls:
+    certResolver: letsencrypt
