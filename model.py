@@ -81,7 +81,7 @@ class CrowdPred(Model):
 
 if __name__ == "__main__":
     # run the inference service
-    logging.info("Starting Kserve inference service v7 05/02 12:23")
-    model = ModelExample("model-example")
+    logging.info(f"Starting CrowdPred {datetime.now()}")
+    model = CrowdPred("crowd-density-model")
     model.load()
     ModelServer().start([model])
