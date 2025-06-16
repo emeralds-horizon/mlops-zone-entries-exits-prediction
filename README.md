@@ -1,6 +1,6 @@
 # WP4 MAIaaS Platform: T4.3 - MLOps Kserve Template
 
-Crowd prediction UC3 model Deployment
+Zone entries/exits model Deployment
 
 ## Authors
 
