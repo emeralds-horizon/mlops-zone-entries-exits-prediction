@@ -1,6 +1,6 @@
 # WP4 MAIaaS Platform: T4.3 - MLOps Kserve Template
 
-Zone entries/exits model Deployment
+Zone entries/exits model Deployment - for corresponding model cart see ([here](https://github.com/emeralds-horizon/EMERALDS_Mobility_Model_Cards_on_Zone_Entries_Exits_Prediction/tree/main))
 
 ## Authors
 
