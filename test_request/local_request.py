@@ -3,6 +3,7 @@ import json
 import requests
 
 # URL of the model prediction endpoint
+<<<<<<< HEAD
 url = "http://localhost:8080/v1/models/crowd-density-model:predict"
 
 # Data to be sent for prediction
@@ -17,6 +18,13 @@ data = {
         [6, "21:15", "Rumbula"]
     ]
 }
+=======
+url = "http://localhost:8080/v1/models/model-example:predict"
+
+# Data to be sent for prediction
+data = {"instances": [[6.8, 2.8, 4.8, 1.4], [1, 1, 1, 1]]}
+
+>>>>>>> origin/main
 # Convert data to JSON
 json_data = json.dumps(data)
 
