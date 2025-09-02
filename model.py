@@ -24,16 +24,6 @@ MINIO_SECRET_ACCESS_KEY = os.environ['MINIO_SECRET_ACCESS_KEY']
 MINIO_API_URL = os.environ['MINIO_API_URL']
 MINIO_BUCKET = os.environ['MINIO_BUCKET']
 
-###############################################
-##### modified code for local model.py runs
-##############################################
-# MINIO_ACCESS_KEY = 'iTLZxAxKSATHqBLanxS5'
-# MINIO_SECRET_ACCESS_KEY = 'jmWpEtGorZoDVCy8X7f0rIlJLZDkAGVDFrYXhZNv'
-# MINIO_API_URL="minio-api.apps.emeralds.ari-aidata.eu"
-# MINIO_BUCKET ="public"
-###############################################
-
-
 
 ########### model (h5) & mapping (joblib)
 FOLDER_PREFIX = 'uc3/'
