@@ -1,5 +1,5 @@
 {
-	"name": "mlops-platform-kserve-template",
+	"name": "mlops-zone-entries-prediction",
 	"context": "..",
 	"dockerFile": "../Dockerfile",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=delegated",
