@@ -3,16 +3,16 @@ kind: InferenceService
 metadata:
   annotations:
     sidecar.istio.io/inject: "true"
-  name: zone-entries-prediction
+  name: zone-density-model
   namespace: stagingv2
   labels:
-    app: zone-entries-prediction-staging
+    app: zone-density-model-staging
 spec:
   predictor:
     maxReplicas: 1
     containers:
       - name: kserve-container
-        image: ghcr.io/emeralds-horizon/zone-entries-prediction:latest
+        image: ghcr.io/emeralds-horizon/zone-density-model:latest
         imagePullPolicy: Always
         resources:
           limits:
@@ -25,27 +25,27 @@ spec:
           - name: MINIO_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: model-secrets-zone-entries-prediction
+                name: model-secrets-zone-density-model
                 key: MINIO_ACCESS_KEY
           - name: MINIO_SECRET_ACCESS_KEY
             valueFrom:
               secretKeyRef:
-                name: model-secrets-zone-entries-prediction
+                name: model-secrets-zone-density-model
                 key: MINIO_SECRET_ACCESS_KEY
           - name: MINIO_API_URL
             valueFrom:
               secretKeyRef:
-                name: model-secrets-zone-entries-prediction
+                name: model-secrets-zone-density-model
                 key: MINIO_API_URL
           - name: MINIO_BUCKET
             valueFrom:
               secretKeyRef:
-                name: model-secrets-zone-entries-prediction
+                name: model-secrets-zone-density-model
                 key: MINIO_BUCKET
           - name: MODEL_PATH
             valueFrom:
               secretKeyRef:
-                name: model-secrets-zone-entries-prediction
+                name: model-secrets-zone-density-model
                 key: MODEL_PATH
     imagePullSecrets:
         - name: github-container-registry
