@@ -4,7 +4,7 @@ import requests
 
 # URL of the model prediction endpoint
 
-url = "http://localhost:8080/v1/models/crowd-density-model:predict"
+url = "http://localhost:8080/v1/models/zone-density-model:predict"
 
 # Data to be sent for prediction
 ###############################
