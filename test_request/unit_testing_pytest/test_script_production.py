@@ -86,7 +86,7 @@ def test_make_inference_request_failure(mocker):
 def test_integration():
     EMERALDS_TOKEN_URL = "https://emeralds-token.apps.emeralds.ari-aidata.eu"
     KSERVE_MODEL_ENDPOINT = (
-        "https://model-example.models.kubeflow.emeralds.ari-aidata.eu/v1/models/model-example:predict"
+        "https://zone-entries-prediction.models.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-entries-prediction:predict"
     )
     username = os.environ.get('MLOPS_PLATFORM_USERNAME_PRODUCTION')
     password = os.environ.get('MLOPS_PLATFORM_PASSWORD_PRODUCTION')

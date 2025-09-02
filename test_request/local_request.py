@@ -3,7 +3,7 @@ import json
 import requests
 
 # URL of the model prediction endpoint
-url = "http://localhost:8080/v1/models/model-example:predict"
+url = "http://localhost:8080/v1/models/zone-entries-prediction:predict"
 
 # Data to be sent for prediction
 data = {"instances": [[6.8, 2.8, 4.8, 1.4], [1, 1, 1, 1]]}
