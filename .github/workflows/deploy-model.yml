@@ -11,10 +11,10 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: emeralds-horizon/zone-entries-prediction ############### emeralds-horizon/emeralds-token
+  IMAGE_NAME: emeralds-horizon/zone-density-model ############### emeralds-horizon/emeralds-token
   NAMESPACE: models ################ emeralds-token
-  MODEL_NAME: zone-entries-prediction
-  INGRESS_ROUTE_NAME: zone-entries-prediction-production-ingressroute
+  MODEL_NAME: zone-density-model
+  INGRESS_ROUTE_NAME: zone-density-model-production-ingressroute
 
 jobs:
   build-and-push-image:
@@ -69,13 +69,13 @@ jobs:
       - name: Remove existing secrets if it exists
         run: |
             echo "Checking for secrets resource"
-            EXISTS=$(kubectl get secrets -n ${{ env.NAMESPACE }} --no-headers=true --ignore-not-found | grep "^model-secrets-zone-entries-prediction" || true)
+            EXISTS=$(kubectl get secrets -n ${{ env.NAMESPACE }} --no-headers=true --ignore-not-found | grep "^model-secrets-zone-density-model" || true)
             if [ -n "$EXISTS" ]; then
-              echo "secrets resource matching 'model-secrets-zone-entries-prediction*' found."
-              echo "Deleting existing secrets model-secrets-zone-entries-prediction resource"
-              kubectl delete secrets model-secrets-zone-entries-prediction -n ${{ env.NAMESPACE }} || true
+              echo "secrets resource matching 'model-secrets-zone-density-model*' found."
+              echo "Deleting existing secrets model-secrets-zone-density-model resource"
+              kubectl delete secrets model-secrets-zone-density-model -n ${{ env.NAMESPACE }} || true
             else
-              echo "secrets model-secrets-zone-entries-prediction resource does not exist, proceeding with deployment."
+              echo "secrets model-secrets-zone-density-model resource does not exist, proceeding with deployment."
             fi
 
       - name: Deploy model secrets
@@ -83,7 +83,7 @@ jobs:
         with:
           namespace: ${{ env.NAMESPACE }}
           secret-type: 'generic'
-          secret-name: model-secrets-zone-entries-prediction
+          secret-name: model-secrets-zone-density-model
           ############################################# Define Secrets here and set them in GitHub
           arguments: |
             --from-literal=MINIO_ACCESS_KEY=${{ secrets.MINIO_ACCESS_KEY }}

@@ -34,6 +34,6 @@ Once you’re ready to make updates (e.g., to `model.py`, `Dockerfile`, `pyproje
 ### Endpoints
 
 - **Main/Production Environment**:
-  - `KSERVE_MODEL_ENDPOINT`: "https://zone-entries-prediction.models.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-entries-prediction:predict"
+  - `KSERVE_MODEL_ENDPOINT`: "https://zone-density-model.models.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
 - **Staging/Development Environment**:
-  - `KSERVE_MODEL_ENDPOINT`: "https://zone-entries-prediction.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-entries-prediction:predict"
+  - `KSERVE_MODEL_ENDPOINT`: "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
