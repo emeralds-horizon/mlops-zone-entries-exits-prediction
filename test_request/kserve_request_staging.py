@@ -36,7 +36,7 @@ def make_inference_request(endpoint_url, access_token, data):
 def main():
     EMERALDS_TOKEN_URL = "https://emeralds-token.apps.emeralds.ari-aidata.eu"
     KSERVE_MODEL_ENDPOINT = (
-        "https://model-example.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/model-example:predict"
+        "https://zone-entries-prediction.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-entries-prediction:predict"
     )
     MLOPS_PLATFORM_USERNAME_STAGING = os.environ['MLOPS_PLATFORM_USERNAME_STAGING']
     MLOPS_PLATFORM_PASSWORD_STAGING = os.environ['MLOPS_PLATFORM_PASSWORD_STAGING']

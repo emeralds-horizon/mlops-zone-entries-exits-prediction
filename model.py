@@ -81,6 +81,6 @@ class ModelExample(Model):
 if __name__ == "__main__":
     # run the inference service
     logging.info("Starting Kserve inference service v7 05/02 12:23")
-    model = ModelExample("model-example")
+    model = ModelExample("zone-entries-prediction")
     model.load()
     ModelServer().start([model])

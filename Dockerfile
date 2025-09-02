@@ -21,6 +21,6 @@ RUN pip install poetry
 COPY poetry.lock poetry.lock
 COPY pyproject.toml pyproject.toml
 
-RUN poetry config virtualenvs.create false && poetry install
+RUN poetry config virtualenvs.create false && poetry install --no-root
 
 ENTRYPOINT ["python","model.py"]
