@@ -19,18 +19,18 @@ logging.basicConfig(level=logging.INFO)
 ###############################################
 ##### Original model.py  code
 ##############################################
-# MINIO_ACCESS_KEY = os.environ['MINIO_ACCESS_KEY']
-# MINIO_SECRET_ACCESS_KEY = os.environ['MINIO_SECRET_ACCESS_KEY']
-# MINIO_API_URL = os.environ['MINIO_API_URL']
-# MINIO_BUCKET = os.environ['MINIO_BUCKET']
+MINIO_ACCESS_KEY = os.environ['MINIO_ACCESS_KEY']
+MINIO_SECRET_ACCESS_KEY = os.environ['MINIO_SECRET_ACCESS_KEY']
+MINIO_API_URL = os.environ['MINIO_API_URL']
+MINIO_BUCKET = os.environ['MINIO_BUCKET']
 
 ###############################################
 ##### modified code for local model.py runs
 ##############################################
-MINIO_ACCESS_KEY = 'iTLZxAxKSATHqBLanxS5'
-MINIO_SECRET_ACCESS_KEY = 'jmWpEtGorZoDVCy8X7f0rIlJLZDkAGVDFrYXhZNv'
-MINIO_API_URL="minio-api.apps.emeralds.ari-aidata.eu"
-MINIO_BUCKET ="public"
+# MINIO_ACCESS_KEY = 'iTLZxAxKSATHqBLanxS5'
+# MINIO_SECRET_ACCESS_KEY = 'jmWpEtGorZoDVCy8X7f0rIlJLZDkAGVDFrYXhZNv'
+# MINIO_API_URL="minio-api.apps.emeralds.ari-aidata.eu"
+# MINIO_BUCKET ="public"
 ###############################################
 
 
@@ -52,9 +52,9 @@ def hhmm_to_window(hhmm: str) -> int:
 
 ###########
 
-class CrowdPred(Model):
+class ZonePred(Model):
     """
-       Crowd prediction model predicts the number of entries & exits per zone, day of the week and timewindow for Riga.
+       Zone prediction model predicts the number of entries & exits per zone, day of the week and timewindow for Riga.
 
        Args:
            name (str): The name of the inference service.
@@ -148,7 +148,7 @@ class CrowdPred(Model):
 
 if __name__ == "__main__":
     # run the inference service
-    logging.info(f"Starting CrowdPred {datetime.now()}")
-    model = CrowdPred("crowd-density-model")
+    logging.info(f"Starting ZonePred {datetime.now()}")
+    model = ZonePred("zone-density-model")
     model.load()
     ModelServer().start([model])
