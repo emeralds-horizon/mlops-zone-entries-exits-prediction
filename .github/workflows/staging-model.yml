@@ -8,6 +8,7 @@ on:
       - "test_request/**"
       - "Dockerfile"
       - "pyproject.toml"
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
