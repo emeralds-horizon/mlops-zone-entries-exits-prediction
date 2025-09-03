@@ -3,13 +3,20 @@ from unittest.mock import MagicMock
 import requests
 import os
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
-from test_request.kserve_request_staging import get_access_token, make_inference_request
+from test_request.kserve_request_staging import (
+    get_access_token,
+    make_inference_request,
+)
+
 
 def test_get_access_token_success(mocker):
     # Mock the requests.post method
-    mock_post = mocker.patch('test_request.kserve_request_staging.requests.post')
+    mock_post = mocker.patch(
+        'test_request.kserve_request_staging.requests.post'
+    )
 
     # Configure the mock to return a response with a specific status code and JSON data
     mock_response = MagicMock()
@@ -24,9 +31,12 @@ def test_get_access_token_success(mocker):
     assert token == 'fake-token'
     logging.info("Test get_access_token_success was successful")
 
+
 def test_get_access_token_failure(mocker):
     # Mock the requests.post method
-    mock_post = mocker.patch('test_request.kserve_request_staging.requests.post')
+    mock_post = mocker.patch(
+        'test_request.kserve_request_staging.requests.post'
+    )
 
     # Configure the mock to return a response with a 400 status code
     mock_response = MagicMock()
@@ -40,9 +50,12 @@ def test_get_access_token_failure(mocker):
     assert 'Error 400. Invalid credentials' in str(exc_info.value)
     logging.info("Test test_get_access_token_failure was successful")
 
+
 def test_make_inference_request_success(mocker):
     # Mock the requests.post method
-    mock_post = mocker.patch('test_request.kserve_request_staging.requests.post')
+    mock_post = mocker.patch(
+        'test_request.kserve_request_staging.requests.post'
+    )
 
     # Configure the mock to return a successful response
     mock_response = MagicMock()
@@ -53,23 +66,26 @@ def test_make_inference_request_success(mocker):
 
     # Call the function
     response = make_inference_request(
-        'https://fake-endpoint.com',
-        'fake-token',
-        {'instances': [[1, 2, 3, 4]]}
+        'https://fake-endpoint.com', 'fake-token', {'instances': [[1, 2, 3, 4]]}
     )
 
     # Assert that the response text is as expected
     assert response.text == 'Success'
     logging.info("Test test_make_inference_request_success was successful")
 
+
 def test_make_inference_request_failure(mocker):
     # Mock the requests.post method
-    mock_post = mocker.patch('test_request.kserve_request_staging.requests.post')
+    mock_post = mocker.patch(
+        'test_request.kserve_request_staging.requests.post'
+    )
 
     # Configure the mock to simulate a failed request
     mock_response = MagicMock()
     mock_response.status_code = 500
-    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError("Server error")
+    mock_response.raise_for_status.side_effect = requests.exceptions.HTTPError(
+        "Server error"
+    )
     mock_post.return_value = mock_response
 
     # Since the function exits on error, we need to catch the SystemExit exception
@@ -77,17 +93,16 @@ def test_make_inference_request_failure(mocker):
         make_inference_request(
             'https://fake-endpoint.com',
             'fake-token',
-            {'instances': [[1, 2, 3, 4]]}
+            {'instances': [[1, 2, 3, 4]]},
         )
     # Assert that the script exits with code 1
     assert exc_info.value.code == 1
     logging.info("Test test_make_inference_request_failure was successful")
 
+
 def test_integration():
     EMERALDS_TOKEN_URL = "https://emeralds-token.apps.emeralds.ari-aidata.eu"
-    KSERVE_MODEL_ENDPOINT = (
-        "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
-    )
+    KSERVE_MODEL_ENDPOINT = "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
     username = os.environ.get('MLOPS_PLATFORM_USERNAME_STAGING')
     password = os.environ.get('MLOPS_PLATFORM_PASSWORD_STAGING')
 
@@ -96,8 +111,12 @@ def test_integration():
 
     access_token = get_access_token(username, password, EMERALDS_TOKEN_URL)
 
-    data = {"instances": [[6.8, 2.8, 4.8, 1.4], [1, 1, 1, 1]]}
-
+    data = {
+        "instances": [
+            [3, "13:30", "Rumbula"],  # day=3 (Wed), 13:30, zone string
+            [6, "21:15", "Rumbula"],
+        ]
+    }
     response = make_inference_request(KSERVE_MODEL_ENDPOINT, access_token, data)
 
     assert response.status_code == 200
