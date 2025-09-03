@@ -6,6 +6,7 @@ import requests
 
 logging.basicConfig(level=logging.INFO)
 
+
 def get_access_token(username, password, token_url):
     data = {
         "username": username,
@@ -14,8 +15,11 @@ def get_access_token(username, password, token_url):
 
     response = requests.post(token_url, data=data)
     if response.status_code != 200:
-        raise Exception(f'Error {response.status_code}. {response.json()["detail"]}')
+        raise Exception(
+            f'Error {response.status_code}. {response.json()["detail"]}'
+        )
     return response.json()['access_token']
+
 
 def make_inference_request(endpoint_url, access_token, data):
     logging.info(f'Kserve endpoint: {endpoint_url}')
@@ -33,27 +37,31 @@ def make_inference_request(endpoint_url, access_token, data):
         exit(1)  # Exit the script with a non-zero exit code
     return resp
 
+
 def main():
     EMERALDS_TOKEN_URL = "https://emeralds-token.apps.emeralds.ari-aidata.eu"
-    KSERVE_MODEL_ENDPOINT = (
-        "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
-    )
-    MLOPS_PLATFORM_USERNAME_STAGING = os.environ['MLOPS_PLATFORM_USERNAME_STAGING']
-    MLOPS_PLATFORM_PASSWORD_STAGING = os.environ['MLOPS_PLATFORM_PASSWORD_STAGING']
+    KSERVE_MODEL_ENDPOINT = "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
+    MLOPS_PLATFORM_USERNAME_STAGING = os.environ[
+        'MLOPS_PLATFORM_USERNAME_STAGING'
+    ]
+    MLOPS_PLATFORM_PASSWORD_STAGING = os.environ[
+        'MLOPS_PLATFORM_PASSWORD_STAGING'
+    ]
 
     access_token = get_access_token(
         MLOPS_PLATFORM_USERNAME_STAGING,
         MLOPS_PLATFORM_PASSWORD_STAGING,
-        EMERALDS_TOKEN_URL
+        EMERALDS_TOKEN_URL,
     )
 
-    data = {"instances": [[6.8, 2.8, 4.8, 1.4], [1, 1, 1, 1]]}
+    data = {
+        "instances": [
+            [3, "13:30", "Rumbula"],  # day=3 (Wed), 13:30, zone string
+            [6, "21:15", "Rumbula"],
+        ]
+    }
+    make_inference_request(KSERVE_MODEL_ENDPOINT, access_token, data)
 
-    make_inference_request(
-        KSERVE_MODEL_ENDPOINT,
-        access_token,
-        data
-    )
 
 if __name__ == "__main__":
     main()
