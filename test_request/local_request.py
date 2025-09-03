@@ -7,15 +7,10 @@ import requests
 url = "http://localhost:8080/v1/models/zone-density-model:predict"
 
 # Data to be sent for prediction
-###############################
-### original code
-#data = {"instances": [[6.8, 2.8, 4.8, 1.4], [1, 1, 1, 1]]}
-###############################
-#Changed code
 data = {
     "instances": [
-        [3, "13:30", "Rumbula"],   # day=3 (Wed), 13:30, zone string
-        [6, "21:15", "Rumbula"]
+        [3, "13:30", "Rumbula"],  # day=3 (Wed), 13:30, zone string
+        [6, "21:15", "Rumbula"],
     ]
 }
 
