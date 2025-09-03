@@ -3,29 +3,29 @@ kind: VirtualService
 metadata:
   annotations:
     sidecar.istio.io/inject: "true"
-  name: zone-entries-prediction
+  name: zone-density-model
   namespace: stagingv2
   labels:
-    app: zone-entries-prediction-staging
+    app: zone-density-model-staging
 spec:
   gateways:
   - knative-serving/knative-local-gateway
   - kubeflow/kubeflow-gateway
   hosts:
-  - zone-entries-prediction.stagingv2.svc.cluster.local
-  - zone-entries-prediction.stagingv2.kubeflow.emeralds.ari-aidata.eu
+  - zone-density-model.stagingv2.svc.cluster.local
+  - zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu
   http:
   - headers:
       request:
         set:
-          Host: zone-entries-prediction-predictor-default.stagingv2.svc.cluster.local
+          Host: zone-density-model-predictor-default.stagingv2.svc.cluster.local
     match:
     - authority:
-        regex: ^zone-entries-prediction\.stagingv2(\.svc(\.cluster\.local)?)?(?::\d{1,5})?$
+        regex: ^zone-density-model\.stagingv2(\.svc(\.cluster\.local)?)?(?::\d{1,5})?$
       gateways:
       - knative-serving/knative-local-gateway
     - authority:
-        regex: ^zone-entries-prediction\.stagingv2\.kubeflow\.emeralds\.ari-aidata\.eu(?::\d{1,5})?$
+        regex: ^zone-density-model\.stagingv2\.kubeflow\.emeralds\.ari-aidata\.eu(?::\d{1,5})?$
       gateways:
       - kubeflow/kubeflow-gateway
     route:

@@ -1,14 +1,14 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
-  name: zone-entries-prediction-production-ingressroute
+  name: zone-density-model-production-ingressroute
   namespace: istio-system
 spec:
   entryPoints:
   - websecure
   routes:
   - kind: Rule
-    match: Host(`zone-entries-prediction.models.kubeflow.emeralds.ari-aidata.eu`)
+    match: Host(`zone-density-model.models.kubeflow.emeralds.ari-aidata.eu`)
     services:
     - name: istio-ingressgateway
       port: 80
