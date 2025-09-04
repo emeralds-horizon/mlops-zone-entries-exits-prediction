@@ -1,6 +1,6 @@
 # WP4 MAIaaS Platform: T4.3 - MLOps Kserve Template
 
-Zone entries/exits model Deployment - **for corresponding model cart see ([here](https://github.com/emeralds-horizon/EMERALDS_Mobility_Model_Cards_on_Zone_Entries_Exits_Prediction/tree/main))**
+Zone entries/exits model Deployment - **for corresponding model cardt see ([here](https://github.com/emeralds-horizon/EMERALDS_Mobility_Model_Cards_on_Zone_Entries_Exits_Prediction/tree/main))**
 
 ## Authors
 
@@ -37,3 +37,4 @@ Once you’re ready to make updates (e.g., to `model.py`, `Dockerfile`, `pyproje
   - `KSERVE_MODEL_ENDPOINT`: "https://zone-density-model.models.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
 - **Staging/Development Environment**:
   - `KSERVE_MODEL_ENDPOINT`: "https://zone-density-model.stagingv2.kubeflow.emeralds.ari-aidata.eu/v1/models/zone-density-model:predict"
+
